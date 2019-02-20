@@ -1,0 +1,58 @@
+---
+title: "Mercury vapour pressure"
+author: "Remko Logemann"
+date: "February 20, 2019"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## App weblocation
+
+This pitch belongs to the mercury vapour app at: 
+
+https://boe22.shinyapps.io/Week4/
+
+## Dataset
+
+It is based on the mercury vapour dataset of R: 
+```{r, echo=TRUE}
+plot(pressure)
+```
+
+Where the pressure can be approximated by a linear function for low temperatures. 
+
+This the temperature threshold can be configured in the app. 
+
+## Low temperatures
+
+For low temperatures the temperature is approximated by: 
+
+```{r, echo = TRUE}
+Model1 <- lm(pressure ~ temperature, data = pressure[pressure$temperature<=100,])
+# Get fit values
+Model1Pred <- data.frame(temperature = c(pressure[pressure$temperature<=100,'temperature'],100))
+Model1Pred[,'pressure'] <- predict(Model1, newdata = Model1Pred)
+
+ plot(pressure$temperature, pressure$pressure, xlab = "Temperature (deg C)", ylab = "Pressure (mm of Hg)")
+lines(Model1Pred$temperature, Model1Pred$pressure, col = "red")
+abline(v=100, col="blue")
+```
+
+## High temperatures
+
+For high temperatures the pressure is approximated by an exponential function:
+
+```{r, echo = TRUE}
+Model2 <- lm(log(pressure) ~ log(temperature), data = pressure[pressure$temperature>100,])
+ 
+Model2Pred <- data.frame(temperature = c(100,pressure[pressure$temperature>100,'temperature']))
+Model2Pred[,'pressure'] <- Model2Pred[,'temperature']^Model2$coefficients[2]*exp(Model2$coefficients[1])
+
+plot(pressure$temperature, pressure$pressure, xlab = "Temperature (deg C)", ylab = "Pressure (mm of Hg)")
+lines(Model2Pred$temperature, Model2Pred$pressure, col = "green")
+abline(v=100, col="blue")
+```
+
